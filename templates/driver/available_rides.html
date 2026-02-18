@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Available Rides - TEXICA{% endblock %}
+
+{% block content %}
+<div class="mb-5">
+    <h2 class="fw-bold mb-2">Ride Requests</h2>
+    <p class="text-muted">Accept rides matching your vehicle type ({{ user.vehicle.get_vehicle_type_display }})</p>
+</div>
+
+<div class="row g-4">
+    {% for ride in bookings %}
+        <div class="col-md-6 col-lg-4">
+            <div class="glass-card animate-fade-in h-100">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0">{{ ride.user.fullname }}</h6>
+                            <small class="text-muted">{{ ride.created_at|timesince }} ago</small>
+                        </div>
+                    </div>
+                    <h5 class="fw-bold text-primary mb-0">₹{{ ride.fare }}</h5>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="d-flex mb-3">
+                        <i class="fas fa-circle text-success mt-1 me-3 small"></i>
+                        <span class="small text-muted">{{ ride.pickup_location }}</span>
+                    </div>
+                    <div class="d-flex">
+                        <i class="fas fa-map-marker-alt text-danger mt-1 me-3 small"></i>
+                        <span class="small text-muted">{{ ride.dropoff_location }}</span>
+                    </div>
+                </div>
+                
+                <hr class="my-4">
+                
+                <div class="d-flex gap-2">
+                    <a href="{% url 'accept_ride' ride.id %}" class="btn btn-primary flex-grow-1 py-2 fw-bold">
+                        ACCEPT RIDE
+                    </a>
+                    <a href="{% url 'reject_ride' ride.id %}" class="btn btn-outline-secondary py-2">
+                        SKIP
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-satellite-dish fa-4x text-light mb-4"></i>
+            <h4 class="fw-bold">Searching for requests...</h4>
+            <p class="text-muted">We will show new ride requests here as they arrive.</p>
+            <a href="{% url 'driver_dashboard' %}" class="btn btn-outline-primary mt-3">Refresh Dashboard</a>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

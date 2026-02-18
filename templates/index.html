@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}TEXICA - Smart Taxi Booking{% endblock %}
+
+{% block content %}
+<div class="row align-items-center min-vh-75 py-5">
+    <div class="col-lg-6 mb-5 mb-lg-0 animate-fade-in">
+        <h1 class="display-3 fw-bold mb-4">Your Ride, <span class="text-primary">Reliable</span> and Quick.</h1>
+        <p class="lead mb-5 text-muted">Join TEXICA today and experience the most advanced taxi booking system. Whether you're traveling across town or looking to drive and earn, we've got you covered.</p>
+        
+        <div class="d-flex flex-wrap gap-3">
+            <a href="{% url 'register_user' %}" class="btn btn-primary btn-lg px-5">Book a Ride</a>
+            <a href="{% url 'register_driver' %}" class="btn btn-outline-secondary btn-lg px-5">Drive with Us</a>
+        </div>
+        
+        <div class="mt-5 d-flex gap-4">
+            <div class="text-center">
+                <h4 class="fw-bold mb-0">10k+</h4>
+                <small class="text-muted">Users</small>
+            </div>
+            <div class="text-center">
+                <h4 class="fw-bold mb-0">500+</h4>
+                <small class="text-muted">Drivers</small>
+            </div>
+            <div class="text-center">
+                <h4 class="fw-bold mb-0">4.8/5</h4>
+                <small class="text-muted">Rating</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="glass-card p-2">
+            <img src="https://images.unsplash.com/photo-1554672408-730436b60dde?auto=format&fit=crop&q=80&w=800" class="img-fluid rounded-4 shadow" alt="Taxi App">
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="py-5">
+    <h2 class="text-center fw-bold mb-5">Why Choose <span class="text-primary">TEXICA</span>?</h2>
+    <div class="row g-4 mt-2">
+        <div class="col-md-4">
+            <div class="glass-card text-center h-100 p-4">
+                <div class="icon-box mb-4 fs-1 text-primary">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Quick Pickup</h4>
+                <p class="text-muted">Algorithm-driven matching ensures the nearest driver arrives at your doorstep in minutes.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card text-center h-100 p-4">
+                <div class="icon-box mb-4 fs-1 text-primary">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Safe Travels</h4>
+                <p class="text-muted">All drivers and vehicles are verified. Real-time tracking for every ride.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card text-center h-100 p-4">
+                <div class="icon-box mb-4 fs-1 text-primary">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Affordable Pricing</h4>
+                <p class="text-muted">Transparent pricing with no hidden charges. Multiple vehicle options for every budget.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

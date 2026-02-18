@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Ride History - TEXICA{% endblock %}
+
+{% block content %}
+<div class="mb-5 d-flex justify-content-between align-items-center">
+    <div>
+        <h2 class="fw-bold mb-1">My Rides</h2>
+        <p class="text-muted mb-0">Review all your past and current journeys</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="?status=completed" class="btn btn-sm btn-outline-secondary">Completed</a>
+        <a href="?status=cancelled" class="btn btn-sm btn-outline-secondary">Cancelled</a>
+        <a href="{% url 'booking_history' %}" class="btn btn-sm btn-outline-primary">All</a>
+    </div>
+</div>
+
+<div class="glass-card p-0 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4">Date & Time</th>
+                    <th>Destination</th>
+                    <th>Driver</th>
+                    <th>Fare</th>
+                    <th>Status</th>
+                    <th class="pe-4 text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ride in bookings %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="fw-bold">{{ ride.created_at|date:"d M, Y" }}</div>
+                            <small class="text-muted">{{ ride.created_at|date:"h:i A" }}</small>
+                        </td>
+                        <td>{{ ride.dropoff_location|truncatechars:40 }}</td>
+                        <td>
+                            {% if ride.driver %}
+                                {{ ride.driver.fullname }}
+                            {% else %}
+                                <span class="text-muted italic">No Driver</span>
+                            {% endif %}
+                        </td>
+                        <td class="fw-bold">₹{{ ride.fare }}</td>
+                        <td><span class="badge badge-{{ ride.status }}">{{ ride.get_status_display }}</span></td>
+                        <td class="pe-4 text-end">
+                            <a href="{% url 'booking_detail' ride.id %}" class="btn btn-sm btn-outline-primary">Details</a>
+                            {% if ride.status == 'completed' and not ride.rating %}
+                                <a href="{% url 'rate_driver' ride.id %}" class="btn btn-sm btn-primary ms-2">Rate</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6" class="text-center py-5 text-muted">No ride history found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

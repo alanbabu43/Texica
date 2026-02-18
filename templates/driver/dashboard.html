@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}Driver Dashboard - TEXICA{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <!-- Status Card -->
+    <div class="col-md-4">
+        <div class="glass-card text-center p-4 {% if is_available %}border-success{% else %}border-danger{% endif %}">
+            <h5 class="fw-bold mb-3">Service Status</h5>
+            <div class="fs-1 mb-3 {% if is_available %}text-success{% else %}text-danger{% endif %}">
+                <i class="fas {% if is_available %}fa-toggle-on{% else %}fa-toggle-off{% endif %}"></i>
+            </div>
+            <h4 class="fw-bold mb-4">{% if is_available %}Online{% else %}Offline{% endif %}</h4>
+            <a href="{% url 'toggle_availability' %}" class="btn {% if is_available %}btn-outline-danger{% else %}btn-primary{% endif %} w-100 py-2">
+                Go {% if is_available %}Offline{% else %}Online{% endif %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="col-md-8">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="glass-card stat-card mb-0">
+                    <div class="stat-value">₹{{ today_earnings|floatformat:0 }}</div>
+                    <div class="stat-label">Today's Earnings</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-card stat-card mb-0">
+                    <div class="stat-value">{{ total_rides }}</div>
+                    <div class="stat-label">Total Rides</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="glass-card stat-card mb-0">
+                    <div class="stat-value">{{ avg_rating }}<i class="fas fa-star ms-2 fs-5 text-warning align-middle"></i></div>
+                    <div class="stat-label">Avg. Rating</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="glass-card mt-4 mb-0 d-flex justify-content-between align-items-center py-3 px-4">
+            <div>
+                <h5 class="fw-bold mb-0">Available Requests nearby</h5>
+                <p class="text-muted small mb-0">Check for new ride requests in your area</p>
+            </div>
+            <div>
+                <a href="{% url 'available_rides' %}" class="btn btn-primary px-4">
+                    View Requests <span class="badge bg-white text-primary ms-2">{{ pending_requests }}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Active Ride if any -->
+    <div class="col-lg-7">
+        {% if active_ride %}
+            <div class="glass-card border-primary animate-fade-in">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">Current Active Ride</h5>
+                    <span class="badge badge-in_progress">IN PROGRESS</span>
+                </div>
+                
+                <div class="d-flex mb-4">
+                    <div class="me-3 text-center" style="width: 25px">
+                        <i class="fas fa-circle text-success mt-1"></i>
+                        <div style="width: 2px; height: 30px; background: #ddd; margin: 5px auto;"></div>
+                        <i class="fas fa-map-marker-alt text-danger"></i>
+                    </div>
+                    <div>
+                        <div class="mb-3">
+                            <span class="fw-bold">{{ active_ride.pickup_location }}</span>
+                        </div>
+                        <div>
+                            <span class="fw-bold">{{ active_ride.dropoff_location }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex align-items-center p-3 border rounded-3 mb-4">
+                    {% if active_ride.user.profile %}
+                        <img src="{{ active_ride.user.profile.url }}" class="rounded-circle me-3" width="50" height="50">
+                    {% else %}
+                        <div class="bg-secondary text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    {% endif %}
+                    <div>
+                        <h6 class="fw-bold mb-0">{{ active_ride.user.fullname }}</h6>
+                        <small class="text-muted">Passenger</small>
+                    </div>
+                    <div class="ms-auto">
+                        <a href="tel:{{ active_ride.user.phone }}" class="btn btn-primary btn-sm rounded-circle"><i class="fas fa-phone"></i></a>
+                    </div>
+                </div>
+                
+                <a href="{% url 'active_ride' active_ride.id %}" class="btn btn-primary w-100 py-3">Open Ride Management</a>
+            </div>
+        {% else %}
+            <div class="glass-card h-100 text-center py-5 d-flex flex-column justify-content-center">
+                <i class="fas fa-car fa-3x text-light mb-3"></i>
+                <h5 class="fw-bold">No active rides</h5>
+                <p class="text-muted">Go online to start receiving requests</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Recent History -->
+    <div class="col-lg-5">
+        <div class="glass-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0">Recent Earnings</h5>
+                <a href="{% url 'earnings_history' %}" class="text-primary text-decoration-none small fw-bold">ALL <i class="fas fa-arrow-right ms-1"></i></a>
+            </div>
+            
+            <ul class="list-group list-group-flush">
+                {% for ride in recent_rides %}
+                    <li class="list-group-item bg-transparent px-0 py-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="fw-bold mb-1">{{ ride.completed_time|date:"h:i A, d M" }}</h6>
+                                <small class="text-muted">{{ ride.dropoff_location|truncatechars:25 }}</small>
+                            </div>
+                            <div class="text-end">
+                                <h6 class="fw-bold text-success mb-1">₹{{ ride.fare }}</h6>
+                                <span class="badge bg-light text-dark border small">{{ ride.payment_method|upper }}</span>
+                            </div>
+                        </div>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item bg-transparent text-center py-4 text-muted">No recent earnings.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Driver Profile - TEXICA{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-md-10">
+        <div class="glass-card animate-fade-in p-5">
+            <div class="d-flex align-items-center mb-5">
+                <div class="position-relative me-4">
+                    {% if user.profile %}
+                        <img src="{{ user.profile.url }}" class="rounded-circle border border-5 border-white shadow" width="100" height="100">
+                    {% else %}
+                        <div class="bg-primary text-white rounded-circle border border-5 border-white shadow d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                            <i class="fas fa-car fa-3x"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="flex-grow-1">
+                    <h2 class="fw-bold mb-1">{{ user.fullname }}</h2>
+                    <div class="d-flex gap-3 text-muted small">
+                        <span><i class="fas fa-star text-warning me-1"></i> {{ avg_rating }} Rating</span>
+                        <span><i class="fas fa-check-circle text-success me-1"></i> Verified Driver</span>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <a href="{% url 'toggle_availability' %}" class="btn {% if is_available %}btn-success{% else %}btn-outline-danger{% endif %}">
+                        Status: {% if is_available %}ONLINE{% else %}OFFLINE{% endif %}
+                    </a>
+                </div>
+            </div>
+            
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row g-5">
+                    <!-- Column 1: Personal -->
+                    <div class="col-md-6">
+                        <h5 class="fw-bold border-bottom pb-2 mb-4">Personal Information</h5>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-muted text-uppercase mb-2">Full Name</label>
+                            {{ profile_form.fullname }}
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-muted text-uppercase mb-2">Phone Number</label>
+                            {{ profile_form.phone }}
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-muted text-uppercase mb-2">Address</label>
+                            {{ profile_form.address }}
+                        </div>
+                    </div>
+                    
+                    <!-- Column 2: Vehicle -->
+                    <div class="col-md-6">
+                        <h5 class="fw-bold border-bottom pb-2 mb-4">Vehicle Information</h5>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-muted text-uppercase mb-2">Vehicle Type</label>
+                            {{ vehicle_form.vehicle_type }}
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-muted text-uppercase mb-2">Registration No</label>
+                            {{ vehicle_form.registration_number }}
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-4">
+                                <label class="form-label fw-bold small text-muted text-uppercase mb-2">Model</label>
+                                {{ vehicle_form.model }}
+                            </div>
+                            <div class="col-6 mb-4">
+                                <label class="form-label fw-bold small text-muted text-uppercase mb-2">Color</label>
+                                {{ vehicle_form.color }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="my-5">
+                
+                <div class="d-flex justify-content-end align-items-center gap-3">
+                    <button type="submit" class="btn btn-primary px-5 py-3 shadow">Update Profile & Vehicle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

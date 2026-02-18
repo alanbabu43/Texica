@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Book a Ride - TEXICA{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-5">
+        <div class="glass-card animate-fade-in p-4">
+            <h3 class="fw-bold mb-4"><i class="fas fa-taxi text-primary me-2"></i>Where to?</h3>
+            
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-muted text-uppercase">Pickup Location</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-success"><i class="fas fa-circle"></i></span>
+                        {{ form.pickup_location }}
+                    </div>
+                    {{ form.pickup_latitude }}
+                    {{ form.pickup_longitude }}
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-muted text-uppercase">Dropoff Location</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-danger"><i class="fas fa-map-marker-alt"></i></span>
+                        {{ form.dropoff_location }}
+                    </div>
+                    {{ form.dropoff_latitude }}
+                    {{ form.dropoff_longitude }}
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase">Vehicle Type</label>
+                        {{ form.vehicle_type }}
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase">Payment</label>
+                        {{ form.payment_method }}
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold small text-muted text-uppercase">Notes for Driver</label>
+                    {{ form.notes }}
+                </div>
+                
+                <div class="alert alert-secondary py-2 mb-4 d-none" id="fare-estimate">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="small fw-bold">ESTIMATED FARE</span>
+                        <h4 class="mb-0 fw-bold text-primary" id="fare-amount">₹0.00</h4>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-lg w-100 py-3 shadow">
+                    Confirm Booking
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-lg-7">
+        <div class="glass-card p-2 h-100">
+            <div id="map" class="h-100" style="min-height: 500px"></div>
+            <div class="p-3 bg-light rounded-bottom small text-muted">
+                <i class="fas fa-info-circle me-1"></i> Click on the map to set <strong>Pickup</strong> first, then <strong>Dropoff</strong>.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var map = initMap('map', 'pickup-lat', 'pickup-lng', true);
+        
+        // Dynamic fare estimate (optional client side simulation)
+        const vRates = {
+            'auto': {base: 30, km: 12},
+            'sedan': {base: 50, km: 15},
+            'suv': {base: 80, km: 20},
+            'luxury': {base: 150, km: 30}
+        };
+
+        const vTypeSelect = document.querySelector('select[name="vehicle_type"]');
+        
+        function updateFare() {
+            var pLat = document.getElementById('pickup-lat').value;
+            var dLat = document.getElementById('dropoff-lat').value;
+            
+            if (pLat && dLat) {
+                // Approximate distance
+                var dist = Math.random() * 10 + 2; // Simulated for UI
+                var config = vRates[vTypeSelect.value];
+                var fare = config.base + (dist * config.km);
+                
+                document.getElementById('fare-estimate').classList.remove('d-none');
+                document.getElementById('fare-amount').innerText = "₹" + Math.round(fare);
+            }
+        }
+
+        vTypeSelect.addEventListener('change', updateFare);
+        
+        // Listen for coordinate updates from map script
+        setInterval(function() {
+            var pLat = document.getElementById('pickup-lat').value;
+            var dLat = document.getElementById('dropoff-lat').value;
+            if (pLat && dLat && document.getElementById('fare-estimate').classList.contains('d-none')) {
+                updateFare();
+            }
+        }, 1000);
+    });
+</script>
+{% endblock %}

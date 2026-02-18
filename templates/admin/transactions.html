@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Financial Transactions - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="mb-5 d-flex justify-content-between align-items-center">
+    <div>
+        <h2 class="fw-bold mb-1">Financial Records</h2>
+        <p class="text-muted mb-0">Total accumulated revenue: <span class="fw-bold text-success">₹{{ total_amount|floatformat:2 }}</span></p>
+    </div>
+</div>
+
+<div class="glass-card mb-4 p-4">
+    <form method="GET" class="row g-3">
+        <div class="col-md-4">
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="failed" {% if status_filter == 'failed' %}selected{% endif %}>Failed</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <select name="method" class="form-select">
+                <option value="">All Payment Methods</option>
+                <option value="online" {% if method_filter == 'online' %}selected{% endif %}>Online</option>
+                <option value="cash" {% if method_filter == 'cash' %}selected{% endif %}>Cash</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary w-100">Filter Records</button>
+        </div>
+    </form>
+</div>
+
+<div class="glass-card p-0 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4">Transaction ID</th>
+                    <th>Booking</th>
+                    <th>Customer</th>
+                    <th>Driver</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th class="pe-4 text-end">Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for txn in transactions %}
+                    <tr>
+                        <td class="ps-4"><code class="text-primary">{{ txn.transaction_id|default:"MANUAL-CASH" }}</code></td>
+                        <td>#{{ txn.booking.id }}</td>
+                        <td>{{ txn.booking.user.fullname }}</td>
+                        <td>{{ txn.booking.driver.fullname }}</td>
+                        <td class="fw-bold">₹{{ txn.amount }}</td>
+                        <td>
+                            <span class="badge {% if txn.status == 'completed' %}bg-success{% elif txn.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                {{ txn.status|upper }}
+                            </span>
+                        </td>
+                        <td class="pe-4 text-end text-muted small">{{ txn.timestamp|date:"d M Y, h:i A" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7" class="text-center py-5 text-muted">No transactions recorded yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

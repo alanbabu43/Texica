@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - TEXICA{% endblock %}
+
+{% block content %}
+<div class="mb-5 d-flex justify-content-between align-items-end">
+    <div>
+        <h2 class="fw-bold mb-1">System Overview</h2>
+        <p class="text-muted mb-0">Monitor and manage the entire TEXICA taxi network</p>
+    </div>
+    <div class="text-end">
+        <h5 class="fw-bold text-primary mb-0">{{ today|date:"l, d M Y" }}</h5>
+        <small class="text-muted">Live Statistics</small>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="glass-card stat-card mb-0 animate-fade-in">
+            <div class="stat-value text-primary">{{ total_bookings }}</div>
+            <div class="stat-label">Total Bookings</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card stat-card mb-0 animate-fade-in" style="animation-delay: 0.1s">
+            <div class="stat-value text-success">₹{{ total_revenue|floatformat:0 }}</div>
+            <div class="stat-label">Total Revenue</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card stat-card mb-0 animate-fade-in" style="animation-delay: 0.2s">
+            <div class="stat-value text-info">{{ active_bookings }}</div>
+            <div class="stat-label">Active Rides</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card stat-card mb-0 animate-fade-in" style="animation-delay: 0.3s">
+            <div class="stat-value text-warning">{{ pending_verifications }}</div>
+            <div class="stat-label">Unverified Drivers</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- User/Driver Stats -->
+    <div class="col-lg-4">
+        <div class="glass-card mb-4 animate-fade-in" style="animation-delay: 0.4s">
+            <h5 class="fw-bold mb-4">Registration Stats</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span>Total Customers</span>
+                <span class="fw-bold">{{ total_users }}</span>
+            </div>
+            <div class="progress mb-4" style="height: 8px">
+                <div class="progress-bar bg-primary" style="width: 75%"></div>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span>Total Drivers</span>
+                <span class="fw-bold">{{ total_drivers }}</span>
+            </div>
+            <div class="progress mb-4" style="height: 8px">
+                <div class="progress-bar bg-info" style="width: 45%"></div>
+            </div>
+            
+            <hr class="my-4">
+            
+            <div class="d-grid gap-2">
+                <a href="{% url 'manage_users' %}" class="btn btn-outline-primary">Manage Customers</a>
+                <a href="{% url 'manage_drivers' %}" class="btn btn-outline-info">Manage Drivers</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="col-lg-8">
+        <div class="glass-card animate-fade-in" style="animation-delay: 0.5s">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0">System Activity</h5>
+                <a href="{% url 'manage_bookings' %}" class="text-primary text-decoration-none small fw-bold">ALL BOOKINGS <i class="fas fa-chevron-right ms-1"></i></a>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Vehicle</th>
+                            <th>Fare</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in recent_bookings %}
+                            <tr>
+                                <td>#{{ booking.id }}</td>
+                                <td>{{ booking.user.fullname }}</td>
+                                <td>{{ booking.get_vehicle_type_display }}</td>
+                                <td class="fw-bold">₹{{ booking.fare }}</td>
+                                <td><span class="badge badge-{{ booking.status }}">{{ booking.get_status_display }}</span></td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="5" class="text-center py-4 text-muted">No recent bookings.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Active Ride Management - TEXICA{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-5">
+        <div class="glass-card animate-fade-in p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0">Ride Details</h4>
+                <span class="badge badge-{{ booking.status }}">{{ booking.get_status_display }}</span>
+            </div>
+            
+            <div class="p-3 bg-light rounded-3 mb-4">
+                <div class="d-flex align-items-center mb-3">
+                    {% if booking.user.profile %}
+                        <img src="{{ booking.user.profile.url }}" class="rounded-circle me-3" width="60" height="60">
+                    {% else %}
+                        <div class="bg-secondary text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                            <i class="fas fa-user fa-2x"></i>
+                        </div>
+                    {% endif %}
+                    <div>
+                        <h5 class="fw-bold mb-1">{{ booking.user.fullname }}</h5>
+                        <a href="tel:{{ booking.user.phone }}" class="text-primary text-decoration-none fw-bold small"><i class="fas fa-phone-alt me-1"></i> {{ booking.user.phone }}</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-5">
+                <div class="mb-4">
+                    <small class="text-muted d-block text-uppercase fw-bold mb-1">Pickup Location</small>
+                    <div class="d-flex">
+                        <i class="fas fa-circle text-success mt-1 me-3"></i>
+                        <span class="fw-bold">{{ booking.pickup_location }}</span>
+                    </div>
+                </div>
+                <div class="mb-0">
+                    <small class="text-muted d-block text-uppercase fw-bold mb-1">Dropoff Location</small>
+                    <div class="d-flex">
+                        <i class="fas fa-map-marker-alt text-danger mt-1 me-3"></i>
+                        <span class="fw-bold">{{ booking.dropoff_location }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 bg-primary text-white rounded-4 shadow-sm text-center mb-5">
+                <small class="text-light d-block text-uppercase fw-bold mb-1">TOTAL FARE</small>
+                <h1 class="fw-bold mb-0">₹{{ booking.fare }}</h1>
+                <small class="text-light-50">Estimated Distance: {{ booking.distance }} km</small>
+            </div>
+            
+            <div class="d-grid gap-3">
+                {% if booking.status == 'accepted' %}
+                    <a href="{% url 'start_ride' booking.id %}" class="btn btn-success btn-lg py-3 fw-bold shadow">
+                        START RIDE
+                    </a>
+                {% elif booking.status == 'in_progress' %}
+                    <!-- Complete Ride Form -->
+                    <form action="{% url 'complete_ride' booking.id %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="actual_distance" value="{{ booking.distance }}">
+                        <button type="submit" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow">
+                            COMPLETE RIDE
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-7">
+        <div class="glass-card p-2 h-100">
+            <div id="ride-map" class="h-100" style="min-height: 500px"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet Routing Machine CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+{% endblock %}
+
+{% block extra_js %}
+<!-- Leaflet Routing Machine JS -->
+<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Pickup: {{ booking.pickup_latitude }}, {{ booking.pickup_longitude }}');
+        console.log('Dropoff: {{ booking.dropoff_latitude }}, {{ booking.dropoff_longitude }}');
+        
+        showRideMap('ride-map', 
+            '{{ booking.pickup_latitude }}', '{{ booking.pickup_longitude }}',
+            '{{ booking.dropoff_latitude }}', '{{ booking.dropoff_longitude }}',
+            '{{ booking.pickup_location|escapejs }}', '{{ booking.dropoff_location|escapejs }}'
+        );
+        
+        // Listen for route found event to update fare if missing
+        document.getElementById('ride-map').addEventListener('ride:route_found', function(e) {
+            console.log('Route found. Distance:', e.detail.distance_km + ' km');
+            
+            // Only update if current fare is zero/None
+            var currentFare = '{{ booking.fare }}';
+            if (currentFare === 'None' || parseFloat(currentFare) === 0) {
+                updateEstimatedFare(e.detail.distance_km);
+            } else {
+                // Update the distance display locally if it says "None"
+                var distDisplay = document.querySelector('.text-light-50');
+                if (distDisplay && distDisplay.innerText.includes('None')) {
+                     distDisplay.innerText = 'Estimated Distance: ' + e.detail.distance_km + ' km';
+                }
+            }
+        });
+        
+        function updateEstimatedFare(distanceKm) {
+            fetch('{% url "update_booking_est_fare" booking.id %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    distance_km: distanceKm
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log('Fare updated:', data);
+                    // Update UI
+                    document.querySelector('h1.fw-bold.mb-0').innerText = '₹' + data.fare.toFixed(2);
+                    document.querySelector('.text-light-50').innerText = 'Estimated Distance: ' + data.distance.toFixed(2) + ' km';
+                    
+                    // Show a toast or small notification?
+                    // alert('Fare estimated based on route: ₹' + data.fare);
+                } else {
+                    console.error('Failed to update fare:', data.message);
+                }
+            })
+            .catch(error => console.error('Error updating fare:', error));
+        }
+    });
+</script>
+{% endblock %}

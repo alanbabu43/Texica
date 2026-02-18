@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Rate Ride - TEXICA{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-md-6">
+        <div class="glass-card animate-fade-in p-5 text-center">
+            <h2 class="fw-bold mb-4">How was your ride?</h2>
+            <p class="text-muted mb-5">Your feedback helps us maintain high service standards</p>
+            
+            <div class="mb-4 d-flex align-items-center justify-content-center p-3 border rounded-3 bg-light">
+                <div class="text-start me-4">
+                    <small class="text-muted d-block">CHAUFFEUR</small>
+                    <h6 class="fw-bold mb-0">{{ booking.driver.fullname }}</h6>
+                </div>
+                <div class="text-end ms-auto">
+                    <h5 class="fw-bold text-primary mb-0">₹{{ booking.fare }}</h5>
+                    <small class="text-muted">{{ booking.completed_time|date:"d M, Y" }}</small>
+                </div>
+            </div>
+            
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-5">
+                    <label class="form-label d-block fw-bold mb-3">Your Rating</label>
+                    <div class="btn-group w-100" role="group">
+                        {% for i in "12345" %}
+                            <input type="radio" class="btn-check" name="rating" id="star{{ i }}" value="{{ i }}" required>
+                            <label class="btn btn-outline-warning py-3" for="star{{ i }}">
+                                <i class="fas fa-star fs-3"></i><br>{{ i }}
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="mb-5 text-start">
+                    <label class="form-label fw-bold small text-muted text-uppercase mb-2">Write a Review</label>
+                    {{ form.review_text }}
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-lg w-100 py-3 mt-2">
+                    Submit Feedback
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

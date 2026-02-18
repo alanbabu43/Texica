@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Ride Tracking - TEXICA{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-4">
+        <div class="glass-card animate-fade-in mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0">Ride Details</h4>
+                <span class="badge badge-{{ booking.status }}">{{ booking.get_status_display }}</span>
+            </div>
+            
+            <div class="mb-5">
+                <div class="d-flex mb-4">
+                    <div class="me-3 text-center" style="width: 25px">
+                        <i class="fas fa-circle text-success mt-1"></i>
+                        <div style="width: 2px; height: 30px; background: #ddd; margin: 5px auto;"></div>
+                        <i class="fas fa-map-marker-alt text-danger"></i>
+                    </div>
+                    <div>
+                        <div class="mb-3">
+                            <small class="text-muted d-block text-uppercase fw-bold">Pickup</small>
+                            <span class="fw-bold">{{ booking.pickup_location }}</span>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block text-uppercase fw-bold">Dropoff</small>
+                            <span class="fw-bold">{{ booking.dropoff_location }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-3 bg-light rounded-3 d-flex justify-content-between mb-4">
+                    <div>
+                        <small class="text-muted d-block text-uppercase fw-bold">Vehicle</small>
+                        <span class="fw-bold">{{ booking.get_vehicle_type_display }}</span>
+                    </div>
+                    <div class="text-end">
+                        <small class="text-muted d-block text-uppercase fw-bold">Payment</small>
+                        <span class="fw-bold text-uppercase">{{ booking.payment_method }}</span>
+                    </div>
+                </div>
+                
+                {% if booking.driver %}
+                    <h5 class="fw-bold mb-3">Your Driver</h5>
+                    <div class="d-flex align-items-center p-3 border rounded-3 mb-4">
+                        {% if booking.driver.profile %}
+                            <img src="{{ booking.driver.profile.url }}" class="rounded-circle me-3" width="50" height="50">
+                        {% else %}
+                            <div class="bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h6 class="fw-bold mb-1">{{ booking.driver.fullname }}</h6>
+                            <small class="text-muted">{{ booking.driver.vehicle.model }} ({{ booking.driver.vehicle.registration_number }})</small>
+                        </div>
+                        <div class="ms-auto">
+                            <a href="tel:{{ booking.driver.phone }}" class="btn btn-outline-primary rounded-circle btn-sm"><i class="fas fa-phone"></i></a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="text-center pt-3 border-top">
+                <h2 class="fw-bold text-primary mb-1">₹{{ booking.fare|default:"0.00" }}</h2>
+                <p class="text-muted small mb-4">Total Amount Payable</p>
+                
+                {% if booking.status == 'completed' and booking.payment_status != 'completed' %}
+                    <a href="{% url 'payment_page' booking.id %}" class="btn btn-success btn-lg w-100 mb-2">Pay Now</a>
+                {% elif booking.status == 'completed' and not booking.rating %}
+                    <a href="{% url 'rate_driver' booking.id %}" class="btn btn-primary btn-lg w-100">Rate Your Ride</a>
+                {% endif %}
+                
+                {% if booking.status == 'pending' or booking.status == 'accepted' %}
+                    <a href="{% url 'cancel_booking' booking.id %}" class="btn btn-outline-danger w-100" onclick="return confirm('Cancel this ride?')">Cancel Booking</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="glass-card p-2 h-100">
+            <div id="ride-map" class="h-100" style="min-height: 500px"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet Routing Machine CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+{% endblock %}
+
+{% block extra_js %}
+<!-- Leaflet Routing Machine JS -->
+<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        showRideMap('ride-map', 
+            '{{ booking.pickup_latitude }}', '{{ booking.pickup_longitude }}',
+            '{{ booking.dropoff_latitude }}', '{{ booking.dropoff_longitude }}',
+            '{{ booking.pickup_location|escapejs }}', '{{ booking.dropoff_location|escapejs }}'
+        );
+        
+        // Auto-refresh for status (simple implementation would be AJAX, here just reload)
+        {% if booking.status == 'pending' or booking.status == 'accepted' %}
+        setTimeout(function() {
+            location.reload();
+        }, 10000);
+        {% endif %}
+    });
+</script>
+{% endblock %}

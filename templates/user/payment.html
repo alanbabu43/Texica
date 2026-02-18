@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Finish Payment - TEXICA{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-md-5">
+        <div class="glass-card animate-fade-in p-5 shadow-lg">
+            <div class="text-center mb-5">
+                <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                    <i class="fas fa-check fa-3x"></i>
+                </div>
+                <h2 class="fw-bold">Ride Completed!</h2>
+                <p class="text-muted">Thank you for traveling with TEXICA</p>
+            </div>
+            
+            <div class="border-top border-bottom py-4 mb-5">
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted">Base Fare</span>
+                    <span class="fw-bold">₹{{ booking.fare|floatformat:0 }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted">Distance</span>
+                    <span class="fw-bold">{{ booking.distance }} km</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0">Total Payable</h5>
+                    <h3 class="fw-bold text-primary mb-0">₹{{ booking.fare }}</h3>
+                </div>
+            </div>
+            
+            <div class="mb-5">
+                <h6 class="fw-bold mb-3">Payment Method</h6>
+                <div class="p-3 bg-light rounded-3 d-flex align-items-center">
+                    <i class="fas {% if booking.payment_method == 'cash' %}fa-wallet{% else %}fa-credit-card{% endif %} fs-4 me-3 text-primary"></i>
+                    <div>
+                        <span class="fw-bold text-uppercase">{{ booking.payment_method }}</span>
+                        <small class="text-muted d-block">Pay driver directly</small>
+                    </div>
+                    <i class="fas fa-check-circle ms-auto text-success"></i>
+                </div>
+            </div>
+            
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success btn-lg w-100 py-3 shadow font-weight-bold">
+                    CONFIRM PAYMENT RECEIVED
+                </button>
+            </form>
+            
+            <p class="text-center mt-4 small text-muted">
+                <i class="fas fa-lock me-1"></i> Secure Transaction Tracking
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

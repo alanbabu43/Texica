@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Driver Registration - TEXICA{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-md-10">
+        <div class="glass-card animate-fade-in p-5">
+            <div class="text-center mb-5">
+                <i class="fas fa-car fa-3x text-primary mb-3"></i>
+                <h2 class="fw-bold">Join as a Taxi Driver</h2>
+                <p class="text-muted">Register your vehicle and start earning with TEXICA</p>
+            </div>
+            
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Personal Info -->
+                    <div class="col-md-12 mb-4">
+                        <h5 class="fw-bold border-bottom pb-2 mb-4">Personal Information</h5>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-2">Full Name</label>
+                        {{ form.fullname }}
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-2">Email Address</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-2">Phone Number</label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-2">Profile Picture</label>
+                        {{ form.profile }}
+                    </div>
+                    <div class="col-md-12 mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-2">Address</label>
+                        {{ form.address }}
+                    </div>
+
+                    <!-- Vehicle Info -->
+                    <div class="col-md-12 mb-4 mt-4">
+                        <h5 class="fw-bold border-bottom pb-2 mb-4">Vehicle Details</h5>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-2">Vehicle Type</label>
+                        {{ form.vehicle_type }}
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-2">Registration Number</label>
+                        {{ form.registration_number }}
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-2">Model Name</label>
+                        {{ form.model }}
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-2">Color</label>
+                        {{ form.color }}
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-2">Seating Capacity</label>
+                        {{ form.capacity }}
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-2">Manufacturing Year</label>
+                        {{ form.year }}
+                    </div>
+
+                    <!-- Account Security -->
+                    <div class="col-md-12 mb-4 mt-4">
+                        <h5 class="fw-bold border-bottom pb-2 mb-4">Account Security</h5>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-2">Password</label>
+                        {{ form.password }}
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-2">Confirm Password</label>
+                        {{ form.confirm_password }}
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 py-3 mt-4">
+                    <i class="fas fa-taxi me-2"></i>Register as Driver
+                </button>
+            </form>
+            
+            <div class="text-center mt-5">
+                <p class="mb-0 text-muted">Already have an account? 
+                    <a href="{% url 'login' %}" class="fw-bold text-decoration-none">Login here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

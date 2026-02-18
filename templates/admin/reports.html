@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}System Analytics - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="mb-5 d-flex justify-content-between align-items-center">
+    <div>
+        <h2 class="fw-bold mb-1">Business Reports</h2>
+        <p class="text-muted mb-0">Deep dive into TEXICA platform performance</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <!-- Revenue Chart Placeholder -->
+    <div class="col-lg-12">
+        <div class="glass-card p-5 text-center">
+            <h5 class="fw-bold mb-4">Daily Revenue (Last 30 Days)</h5>
+            <div class="d-flex align-items-end justify-content-around bg-light rounded-4 p-4" style="height: 300px">
+                {% for day in daily_revenue %}
+                    <div class="bg-primary opacity-75 rounded-top" style="height: {{ day.revenue|floatformat:0|add:5 }}%; width: 2%"></div>
+                {% endfor %}
+            </div>
+            <div class="d-flex justify-content-between mt-3 text-muted small">
+                <span>{{ daily_revenue.0.date|date:"d M" }}</span>
+                <span>Revenue Flow Tracking</span>
+                <span>Today</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Distribution Stats -->
+    <div class="col-md-6">
+        <div class="glass-card">
+            <h5 class="fw-bold mb-4">Bookings by Vehicle</h5>
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr class="text-muted small">
+                            <th>Type</th>
+                            <th>Count</th>
+                            <th class="text-end">Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in vehicle_type_stats %}
+                            <tr>
+                                <td class="fw-bold">{{ stat.vehicle_type|upper }}</td>
+                                <td>{{ stat.count }}</td>
+                                <td class="text-end fw-bold">₹{{ stat.revenue|default:0 }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top Performers -->
+    <div class="col-md-6">
+        <div class="glass-card">
+            <h5 class="fw-bold mb-4">Top Drivers</h5>
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr class="text-muted small">
+                            <th>Driver</th>
+                            <th>Rides</th>
+                            <th class="text-end">Earnings</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for driver in top_drivers %}
+                            <tr>
+                                <td class="fw-bold">{{ driver.fullname }}</td>
+                                <td>{{ driver.total_rides }}</td>
+                                <td class="text-end fw-bold text-success">₹{{ driver.total_earnings|default:0 }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
