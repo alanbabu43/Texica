@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}User Detail - {{ user.fullname }} - TEXICA{% endblock %}
+
+{% block content %}
+<div class="mb-5">
+    <a href="{% url 'manage_users' %}" class="btn btn-link text-decoration-none ps-0 mb-3"><i class="fas fa-arrow-left me-2"></i>Back to Customers</a>
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold mb-1">Customer Profile</h2>
+            <p class="text-muted mb-0">Member since {{ user.date_joined|date:"d M Y" }}</p>
+        </div>
+        <div>
+            <a href="{% url 'toggle_user_status' user.id %}" class="btn {% if user.status == 'active' %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+                {% if user.status == 'active' %}Block Account{% else %}Unblock Account{% endif %}
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <!-- User Info -->
+        <div class="glass-card mb-4 p-4 text-center">
+            {% if user.profile %}
+                <img src="{{ user.profile.url }}" class="rounded-circle mb-3 border border-4 border-light shadow-sm" width="120" height="120">
+            {% else %}
+                <div class="bg-light rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center border border-4 border-light shadow-sm" style="width: 120px; height: 120px;">
+                    <i class="fas fa-user fa-4x text-muted opacity-50"></i>
+                </div>
+            {% endif %}
+            <h4 class="fw-bold mb-1">{{ user.fullname }}</h4>
+            <p class="text-muted mb-3">{{ user.email }}</p>
+            <span class="badge {% if user.status == 'active' %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %} px-3 py-2 mb-4">
+                {{ user.status|upper }}
+            </span>
+            
+            <div class="text-start border-top pt-4">
+                <div class="mb-3">
+                    <div class="small text-muted text-uppercase fw-bold">Phone Number</div>
+                    <div class="fw-bold">{{ user.phone|default:"Not provided" }}</div>
+                </div>
+                <div class="mb-3">
+                    <div class="small text-muted text-uppercase fw-bold">Address</div>
+                    <div class="fw-bold">{{ user.address|default:"Not provided" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="glass-card p-4">
+            <h6 class="text-muted text-uppercase fw-bold mb-4">Activity Summary</h6>
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="p-3 bg-primary-subtle rounded text-center">
+                        <div class="small text-primary fw-bold">Total Rides</div>
+                        <h4 class="fw-bold mb-0 text-primary">{{ total_bookings }}</h4>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-3 bg-success-subtle rounded text-center">
+                        <div class="small text-success fw-bold">Completed</div>
+                        <h4 class="fw-bold mb-0 text-success">{{ completed_bookings }}</h4>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="p-3 bg-light rounded text-center">
+                        <div class="small text-muted fw-bold">Total Investment</div>
+                        <h4 class="fw-bold mb-0">₹{{ total_spent }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <!-- Booking History -->
+        <div class="glass-card p-0 overflow-hidden">
+            <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Ride History</h5>
+                <span class="badge bg-light text-dark">{{ bookings.count }} Bookings</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Date</th>
+                            <th>Driver</th>
+                            <th>Fare</th>
+                            <th>Status</th>
+                            <th class="pe-4 text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in bookings %}
+                            <tr>
+                                <td class="ps-4 fw-bold">#{{ b.id }}</td>
+                                <td>{{ b.created_at|date:"d M Y" }}</td>
+                                <td>
+                                    {% if b.driver %}
+                                        <div class="small fw-bold">{{ b.driver.fullname }}</div>
+                                        <div class="text-muted extra-small">{{ b.driver.vehicle.registration_number }}</div>
+                                    {% else %}
+                                        <span class="text-muted small">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>₹{{ b.fare|default:"0.00" }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if b.status == 'completed' %}bg-success-subtle text-success
+                                        {% elif b.status == 'cancelled' %}bg-danger-subtle text-danger
+                                        {% else %}bg-primary-subtle text-primary{% endif %} badge-xs">
+                                        {{ b.status }}
+                                    </span>
+                                </td>
+                                <td class="pe-4 text-end">
+                                    <a href="{% url 'booking_detail_admin' b.id %}" class="btn btn-sm btn-link p-0 text-primary">View</a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="6" class="text-center py-5 text-muted">No ride history found for this customer.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

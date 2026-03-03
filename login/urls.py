@@ -31,6 +31,7 @@ urlpatterns = [
     path('driver/ride/start/<int:booking_id>/', driver_views.start_ride, name='start_ride'),
     path('driver/ride/complete/<int:booking_id>/', driver_views.complete_ride, name='complete_ride'),
     path('driver/earnings/', driver_views.earnings_history, name='earnings_history'),
+    path('driver/earnings/<int:booking_id>/', driver_views.ride_detail_driver, name='ride_detail_driver'),
     path('driver/profile/', driver_views.driver_profile, name='driver_profile'),
     path('driver/ride/update-est-fare/<int:booking_id>/', driver_views.update_booking_est_fare, name='update_booking_est_fare'),
 

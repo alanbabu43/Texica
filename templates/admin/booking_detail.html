@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking Details #{{ booking.id }} - TEXICA{% endblock %}
+
+{% block content %}
+<div class="mb-5">
+    <a href="{% url 'manage_bookings' %}" class="btn btn-link text-decoration-none ps-0 mb-3"><i class="fas fa-arrow-left me-2"></i>Back to Bookings</a>
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold mb-1">Booking #{{ booking.id }}</h2>
+            <p class="text-muted mb-0">Booked on {{ booking.created_at|date:"d M Y, h:i A" }}</p>
+        </div>
+        <div>
+            <span class="badge 
+                {% if booking.status == 'pending' %}bg-warning-subtle text-warning
+                {% elif booking.status == 'accepted' %}bg-info-subtle text-info
+                {% elif booking.status == 'in_progress' %}bg-primary-subtle text-primary
+                {% elif booking.status == 'completed' %}bg-success-subtle text-success
+                {% elif booking.status == 'cancelled' %}bg-danger-subtle text-danger
+                {% endif %} fs-6 px-3 py-2">
+                {{ booking.status|upper }}
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <!-- Ride Info -->
+        <div class="glass-card mb-4 p-4">
+            <h5 class="fw-bold mb-4">Ride Information</h5>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="d-flex mb-4">
+                        <div class="text-primary me-3 pt-1"><i class="fas fa-map-marker-alt fa-lg"></i></div>
+                        <div>
+                            <div class="small text-muted text-uppercase fw-bold">Pickup Location</div>
+                            <div class="fw-bold">{{ booking.pickup_location }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex mb-4">
+                        <div class="text-danger me-3 pt-1"><i class="fas fa-flag-checkered fa-lg"></i></div>
+                        <div>
+                            <div class="small text-muted text-uppercase fw-bold">Drop-off Location</div>
+                            <div class="fw-bold">{{ booking.dropoff_location }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="small text-muted text-uppercase fw-bold">Vehicle Type</div>
+                    <div class="fw-bold">{{ booking.get_vehicle_type_display }}</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="small text-muted text-uppercase fw-bold">Distance</div>
+                    <div class="fw-bold">{{ booking.distance|default:'-' }} km</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="small text-muted text-uppercase fw-bold">Fare</div>
+                    <div class="fw-bold text-primary fs-5">₹{{ booking.fare|default:'0.00' }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="glass-card mb-4 p-4">
+            <h5 class="fw-bold mb-4">Timeline</h5>
+            <div class="row g-3">
+                <div class="col-sm-6 col-md-3">
+                    <div class="p-3 bg-light rounded text-center">
+                        <div class="small text-muted">Booked At</div>
+                        <div class="fw-bold small">{{ booking.created_at|date:"h:i A" }}</div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="p-3 bg-light rounded text-center">
+                        <div class="small text-muted">Accepted At</div>
+                        <div class="fw-bold small">{{ booking.accepted_time|date:"h:i A"|default:"-" }}</div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="p-3 bg-light rounded text-center">
+                        <div class="small text-muted">Started At</div>
+                        <div class="fw-bold small">{{ booking.started_time|date:"h:i A"|default:"-" }}</div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <div class="p-3 bg-light rounded text-center">
+                        <div class="small text-muted">Completed At</div>
+                        <div class="fw-bold small">{{ booking.completed_time|date:"h:i A"|default:"-" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Info -->
+        <div class="glass-card p-4">
+            <h5 class="fw-bold mb-4">Payment Details</h5>
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <div class="small text-muted text-uppercase fw-bold">Payment Method</div>
+                    <div class="fw-bold"><i class="fas fa-money-bill-wave me-2 text-success"></i>{{ booking.get_payment_method_display }}</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="small text-muted text-uppercase fw-bold">Payment Status</div>
+                    <div>
+                        <span class="badge {% if booking.payment_status == 'completed' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                            {{ booking.payment_status|upper }}
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    {% if booking.transactions.exists %}
+                        <div class="small text-muted text-uppercase fw-bold">Transaction ID</div>
+                        <div class="small font-monospace text-truncate">{{ booking.transactions.first.transaction_id|default:"N/A" }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Customer Info -->
+        <div class="glass-card mb-4 p-4 text-center">
+            <h6 class="text-muted text-uppercase fw-bold mb-4 text-start">Customer Details</h6>
+            {% if booking.user.profile %}
+                <img src="{{ booking.user.profile.url }}" class="rounded-circle mb-3" width="80" height="80">
+            {% else %}
+                <div class="bg-light rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                    <i class="fas fa-user fa-3x text-muted"></i>
+                </div>
+            {% endif %}
+            <h5 class="fw-bold mb-1">{{ booking.user.fullname }}</h5>
+            <p class="text-muted small mb-3">{{ booking.user.email }}</p>
+            <div class="d-grid">
+                <a href="{% url 'user_detail' booking.user.id %}" class="btn btn-sm btn-outline-primary">View Customer History</a>
+            </div>
+        </div>
+
+        <!-- Driver Info -->
+        <div class="glass-card mb-4 p-4">
+            <h6 class="text-muted text-uppercase fw-bold mb-4">Driver Details</h6>
+            {% if booking.driver %}
+                <div class="text-center">
+                    {% if booking.driver.profile %}
+                        <img src="{{ booking.driver.profile.url }}" class="rounded-circle mb-3" width="80" height="80">
+                    {% else %}
+                        <div class="bg-light rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-user-tie fa-3x text-muted"></i>
+                        </div>
+                    {% endif %}
+                    <h5 class="fw-bold mb-1">{{ booking.driver.fullname }}</h5>
+                    <p class="text-muted small mb-3">{{ booking.driver.phone }}</p>
+                    
+                    <div class="p-3 bg-light rounded text-start mb-3">
+                        <div class="small text-muted text-uppercase fw-bold">Vehicle</div>
+                        <div class="fw-bold small">{{ booking.driver.vehicle.model }} ({{ booking.driver.vehicle.registration_number }})</div>
+                        <div class="small text-muted">{{ booking.driver.vehicle.get_vehicle_type_display }}</div>
+                    </div>
+
+                    <div class="d-grid">
+                        <a href="{% url 'driver_detail' booking.driver.id %}" class="btn btn-sm btn-outline-primary">View Driver Profile</a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-user-slash fa-3x text-muted mb-3 opacity-50"></i>
+                    <p class="text-muted mb-0">No driver assigned to this booking yet.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Rating -->
+        {% if booking.rating %}
+            <div class="glass-card p-4">
+                <h6 class="text-muted text-uppercase fw-bold mb-3">Customer Rating</h6>
+                <div class="mb-3 text-warning fs-5">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= booking.rating.rating %}
+                            <i class="fas fa-star"></i>
+                        {% else %}
+                            <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% if booking.rating.review_text %}
+                    <div class="p-3 bg-light rounded italic small">
+                        "{{ booking.rating.review_text }}"
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

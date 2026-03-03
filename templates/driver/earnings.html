@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+
+{% block title %}Earnings History - TEXICA{% endblock %}
+
+{% block extra_css %}
+<style>
+    .earnings-summary-card {
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: transform 0.2s ease;
+    }
+    .earnings-summary-card:hover {
+        transform: translateY(-4px);
+    }
+    .earnings-amount {
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+    .earnings-label {
+        font-size: 0.85rem;
+        opacity: 0.75;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-top: 0.25rem;
+    }
+    .ride-row:hover {
+        background: rgba(255, 255, 255, 0.05) !important;
+    }
+    .payment-badge-cash {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .payment-badge-online {
+        background: rgba(99, 102, 241, 0.15);
+        color: #818cf8;
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .status-paid {
+        color: #22c55e;
+        font-weight: 600;
+    }
+    .status-pending {
+        color: #f59e0b;
+        font-weight: 600;
+    }
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    .table-responsive {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .earnings-table th {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        opacity: 0.6;
+        font-weight: 600;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding: 1rem 1.25rem;
+    }
+    .earnings-table td {
+        padding: 1rem 1.25rem;
+        vertical-align: middle;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+    .empty-state i {
+        font-size: 3.5rem;
+        opacity: 0.3;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h3 class="fw-bold mb-1"><i class="fas fa-wallet me-2 text-primary"></i>Earnings History</h3>
+        <p class="text-muted mb-0">Track all your completed rides and payments</p>
+    </div>
+    <a href="{% url 'driver_dashboard' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+    </a>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="glass-card earnings-summary-card">
+            <div class="earnings-amount text-white">₹{{ total_earnings|floatformat:2 }}</div>
+            <div class="earnings-label">Total Earnings</div>
+            <div class="mt-2">
+                <i class="fas fa-coins text-warning"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card earnings-summary-card">
+            <div class="earnings-amount text-success">₹{{ paid_earnings|floatformat:2 }}</div>
+            <div class="earnings-label">Paid Earnings</div>
+            <div class="mt-2">
+                <i class="fas fa-check-circle text-success"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card earnings-summary-card">
+            <div class="earnings-amount text-warning">₹{{ pending_earnings|floatformat:2 }}</div>
+            <div class="earnings-label">Pending Payments</div>
+            <div class="mt-2">
+                <i class="fas fa-clock text-warning"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rides Table -->
+<div class="glass-card p-0">
+    <div class="d-flex justify-content-between align-items-center p-4 border-bottom" style="border-color: rgba(255,255,255,0.08) !important;">
+        <h5 class="fw-bold mb-0">
+            <i class="fas fa-list me-2 text-primary"></i>All Completed Rides
+        </h5>
+        <span class="badge bg-primary rounded-pill">{{ rides|length }} rides</span>
+    </div>
+
+    {% if rides %}
+        <div class="table-responsive">
+            <table class="table earnings-table mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Date & Time</th>
+                        <th>Passenger</th>
+                        <th>Route</th>
+                        <th>Distance</th>
+                        <th>Fare</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ride in rides %}
+                    <tr class="ride-row">
+                        <td>
+                            <span class="text-muted small">#{{ forloop.counter }}</span>
+                        </td>
+                        <td>
+                            <div class="fw-semibold small">{{ ride.completed_time|date:"d M Y" }}</div>
+                            <div class="text-muted" style="font-size:0.78rem;">{{ ride.completed_time|date:"h:i A" }}</div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if ride.user.profile %}
+                                    <img src="{{ ride.user.profile.url }}" class="rounded-circle me-2" width="32" height="32" style="object-fit:cover;">
+                                {% else %}
+                                    <div class="bg-secondary text-white rounded-circle me-2 d-flex align-items-center justify-content-center" style="width:32px;height:32px;font-size:0.75rem;">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                {% endif %}
+                                <span class="fw-semibold small">{{ ride.user.fullname|default:ride.user.email }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="small">
+                                <div class="d-flex align-items-center mb-1">
+                                    <i class="fas fa-circle text-success me-2" style="font-size:0.5rem;"></i>
+                                    <span class="text-truncate" style="max-width:150px;" title="{{ ride.pickup_location }}">{{ ride.pickup_location|truncatechars:22 }}</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-map-marker-alt text-danger me-2" style="font-size:0.65rem;"></i>
+                                    <span class="text-truncate" style="max-width:150px;" title="{{ ride.dropoff_location }}">{{ ride.dropoff_location|truncatechars:22 }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if ride.distance %}
+                                <span class="fw-semibold">{{ ride.distance }} km</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="fw-bold text-success fs-6">₹{{ ride.fare|floatformat:2 }}</span>
+                        </td>
+                        <td>
+                            {% if ride.payment_method == 'cash' %}
+                                <span class="payment-badge-cash"><i class="fas fa-money-bill-wave me-1"></i>Cash</span>
+                            {% else %}
+                                <span class="payment-badge-online"><i class="fas fa-credit-card me-1"></i>Online</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if ride.payment_status == 'completed' %}
+                                <span class="status-paid"><i class="fas fa-check-circle me-1"></i>Paid</span>
+                            {% else %}
+                                <span class="status-pending"><i class="fas fa-hourglass-half me-1"></i>Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'ride_detail_driver' ride.id %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                <i class="fas fa-info-circle me-1"></i>View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-wallet d-block"></i>
+            <h5 class="fw-bold mt-2">No earnings yet</h5>
+            <p class="text-muted">Complete rides to see your earnings history here.</p>
+            <a href="{% url 'available_rides' %}" class="btn btn-primary mt-2">
+                <i class="fas fa-car me-2"></i>Find Rides
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

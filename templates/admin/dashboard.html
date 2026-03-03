@@ -93,7 +93,7 @@
                     <tbody>
                         {% for booking in recent_bookings %}
                             <tr>
-                                <td>#{{ booking.id }}</td>
+                                <td>#{{ forloop.counter }}</td>
                                 <td>{{ booking.user.fullname }}</td>
                                 <td>{{ booking.get_vehicle_type_display }}</td>
                                 <td class="fw-bold">₹{{ booking.fare }}</td>

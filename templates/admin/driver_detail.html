@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}Driver Detail - {{ driver.fullname }} - TEXICA{% endblock %}
+
+{% block content %}
+<div class="mb-5">
+    <a href="{% url 'manage_drivers' %}" class="btn btn-link text-decoration-none ps-0 mb-3"><i class="fas fa-arrow-left me-2"></i>Back to Drivers</a>
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold mb-1">Driver Profile</h2>
+            <p class="text-muted mb-0">Partner since {{ driver.date_joined|date:"d M Y" }}</p>
+        </div>
+        <div>
+            <a href="{% url 'verify_driver' driver.id %}" class="btn {% if driver.vehicle.is_verified %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+                {% if driver.vehicle.is_verified %}Unverify Driver{% else %}Verify Driver{% endif %}
+            </a>
+            <a href="{% url 'toggle_user_status' driver.id %}" class="btn {% if driver.status == 'active' %}btn-outline-danger{% else %}btn-outline-success{% endif %} ms-2">
+                {% if driver.status == 'active' %}Block Account{% else %}Unblock Account{% endif %}
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <!-- Driver Info -->
+        <div class="glass-card mb-4 p-4 text-center">
+            {% if driver.profile %}
+                <img src="{{ driver.profile.url }}" class="rounded-circle mb-3 border border-4 border-light shadow-sm" width="120" height="120">
+            {% else %}
+                <div class="bg-light rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center border border-4 border-light shadow-sm" style="width: 120px; height: 120px;">
+                    <i class="fas fa-user-tie fa-4x text-muted opacity-50"></i>
+                </div>
+            {% endif %}
+            <h4 class="fw-bold mb-1">{{ driver.fullname }}</h4>
+            <p class="text-muted mb-2">{{ driver.email }}</p>
+            <div class="d-flex justify-content-center gap-2 mb-4">
+                <span class="badge {% if driver.status == 'active' %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %} px-3 py-2">
+                    {{ driver.status|upper }}
+                </span>
+                <span class="badge {% if driver.vehicle.is_verified %}bg-primary-subtle text-primary{% else %}bg-warning-subtle text-warning{% endif %} px-3 py-2">
+                    {% if driver.vehicle.is_verified %}VERIFIED{% else %}PENDING VERIFICATION{% endif %}
+                </span>
+            </div>
+            
+            <div class="text-start border-top pt-4">
+                <div class="mb-3">
+                    <div class="small text-muted text-uppercase fw-bold">Phone Number</div>
+                    <div class="fw-bold">{{ driver.phone|default:"Not provided" }}</div>
+                </div>
+                <div class="p-3 bg-light rounded">
+                    <div class="small text-muted text-uppercase fw-bold mb-2">Vehicle Information</div>
+                    <div class="fw-bold">{{ driver.vehicle.model }}</div>
+                    <div class="small text-dark">{{ driver.vehicle.registration_number }}</div>
+                    <div class="badge bg-white text-dark border mt-2">{{ driver.vehicle.get_vehicle_type_display }}</div>
+                    <div class="small text-muted mt-2">Color: {{ driver.vehicle.color }} | Year: {{ driver.vehicle.year }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Stats -->
+        <div class="glass-card p-4">
+            <h6 class="text-muted text-uppercase fw-bold mb-4">Performance Stats</h6>
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="p-3 bg-primary-subtle rounded text-center">
+                        <div class="small text-primary fw-bold">Total Rides</div>
+                        <h4 class="fw-bold mb-0 text-primary">{{ total_rides }}</h4>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-3 bg-warning-subtle rounded text-center">
+                        <div class="small text-warning fw-bold">Rating</div>
+                        <h4 class="fw-bold mb-0 text-warning">{{ avg_rating }} <i class="fas fa-star fs-6"></i></h4>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="p-3 bg-success-subtle rounded text-center">
+                        <div class="small text-success fw-bold">Total Earnings</div>
+                        <h4 class="fw-bold mb-0 text-success">₹{{ total_earnings }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <!-- Ride History -->
+        <div class="glass-card mb-4 p-0 overflow-hidden">
+            <div class="p-4 border-bottom">
+                <h5 class="fw-bold mb-0">Ride History</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Fare</th>
+                            <th>Status</th>
+                            <th class="pe-4 text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in bookings %}
+                            <tr>
+                                <td class="ps-4 fw-bold">#{{ b.id }}</td>
+                                <td>{{ b.created_at|date:"d M Y" }}</td>
+                                <td>
+                                    <div class="small fw-bold">{{ b.user.fullname }}</div>
+                                    <div class="text-muted extra-small">{{ b.user.phone }}</div>
+                                </td>
+                                <td>₹{{ b.fare|default:"0.00" }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if b.status == 'completed' %}bg-success-subtle text-success
+                                        {% elif b.status == 'cancelled' %}bg-danger-subtle text-danger
+                                        {% else %}bg-primary-subtle text-primary{% endif %} badge-xs">
+                                        {{ b.status }}
+                                    </span>
+                                </td>
+                                <td class="pe-4 text-end">
+                                    <a href="{% url 'booking_detail_admin' b.id %}" class="btn btn-sm btn-link p-0 text-primary">View</a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="6" class="text-center py-5 text-muted">No ride history found for this driver.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Recent Ratings -->
+        <div class="glass-card p-4">
+            <h5 class="fw-bold mb-4">Recent Feedback</h5>
+            <div class="row g-3">
+                {% for r in ratings %}
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded shadow-sm h-100">
+                            <div class="d-flex justify-content-between mb-2">
+                                <div class="text-warning small">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= r.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <small class="text-muted">{{ r.created_at|date:"d M Y" }}</small>
+                            </div>
+                            <p class="small mb-2 italic">"{{ r.review_text|default:'No comment provided' }}"</p>
+                            <div class="extra-small text-muted">- {{ r.user.fullname }}</div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12 text-center py-4 text-muted">No ratings received yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

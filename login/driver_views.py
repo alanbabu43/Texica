@@ -247,6 +247,19 @@ def earnings_history(request):
     return render(request, 'driver/earnings.html', context)
 
 
+# Ride Detail (Driver)
+@login_required
+@driver_required
+def ride_detail_driver(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id, driver=request.user, status='completed')
+    
+    context = {
+        'ride': booking,
+    }
+    
+    return render(request, 'driver/earning_detail.html', context)
+
+
 # Driver Profile
 @login_required
 @driver_required
@@ -288,7 +301,9 @@ def driver_profile(request):
         'ratings': ratings,
         'avg_rating': round(avg_rating, 1),
     }
-    
+
+    return render(request, 'driver/profile.html', context)
+
 
 # Update Booking Estimated Fare
 @login_required
