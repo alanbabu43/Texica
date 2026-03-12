@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ER Diagram - Taxi Booking System</title>
+    <!-- Include viz.js for rendering Graphviz dot notation into SVGs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #diagram { 
+            width: 100%; 
+            height: calc(100vh - 80px); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            overflow: auto;
+            border: 1px solid #000;
+            background: #fff;
+        }
+        svg {
+            max-width: none;
+            max-height: none;
+        }
+        h2 {
+            color: #000;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        p.info {
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>ER DIAGRAM OF TAXI BOOKING SYSTEM</h2>
+    <p class="info">Black & White style with directed arrows. All cardinality and role labels have been removed as requested.</p>
+    <div id="diagram"><h3>Rendering Detailed ER Diagram... Please wait.</h3></div>
+    
+    <script>
+        var dot = `
+digraph ER {
+    overlap=false;
+    splines=true;
+    nodesep=1.0;
+    ranksep=1.2;
+    bgcolor="#ffffff";
+    
+    node [fontname="Arial", color="#000000", fontcolor="#000000", penwidth=1.5];
+    edge [color="#000000", penwidth=1.2, dir="forward", arrowhead="normal", label=""];
+
+    // ================= ENTITIES =================
+    node [shape=box, style=solid, width=1.5, height=0.6, fontsize=14];
+    User [label="USER"];
+    Vehicle [label="VEHICLE"];
+    Booking [label="BOOKING"];
+    Rating [label="RATING"];
+    Transaction [label="TRANSACTION"];
+
+    // ================= RELATIONSHIPS =================
+    node [shape=diamond, style=solid, margin=0.1, width=1.1, height=0.9, fontsize=12];
+    Drives [label="Drives"];
+    Book [label="Books"];
+    Assigned [label="Assigned_To"];
+    Given [label="Gives"];
+    Received [label="Receives"];
+    HasRating [label="Has_Rating"];
+    HasTransaction [label="Has_Transaction"];
+
+    // ================= USER ATTRIBUTES =================
+    node [shape=ellipse, style=solid, penwidth=1.0, width=0.8, height=0.4, fontsize=11];
+    U_id [label=<<u>Id</u>>];
+    U_email [label=<<u>Email</u>>];  
+    U_password [label="Password"];
+    U_phone [label="Phone"];
+    U_fullname [label="Fullname"];
+    U_address [label="Address"];
+    U_profile [label="Profile_Pic"];
+    U_role [label="Role"];
+    U_status [label="Status"];
+    U_avail [label="Is_Available"];
+
+    User -> U_id;
+    User -> U_email;
+    User -> U_password;
+    User -> U_phone;
+    User -> U_fullname;
+    User -> U_address;
+    User -> U_profile;
+    User -> U_role;
+    User -> U_status;
+    User -> U_avail;
+
+    // ================= VEHICLE ATTRIBUTES =================
+    node [shape=ellipse, style=solid, penwidth=1.0, fontsize=11];
+    V_id [label=<<u>Id</u>>];
+    V_reg [label=<<u>Registration_No</u>>]; 
+    V_type [label="Vehicle_Type"];
+    V_model [label="Model"];
+    V_color [label="Color"];
+    V_capacity [label="Capacity"];
+    V_year [label="Year"];
+    V_verified [label="Is_Verified"];
+    V_created [label="Created_At"];
+
+    Vehicle -> V_id;
+    Vehicle -> V_reg;
+    Vehicle -> V_type;
+    Vehicle -> V_model;
+    Vehicle -> V_color;
+    Vehicle -> V_capacity;
+    Vehicle -> V_year;
+    Vehicle -> V_verified;
+    Vehicle -> V_created;
+
+    // ================= BOOKING ATTRIBUTES =================
+    node [shape=ellipse, style=solid, penwidth=1.0, fontsize=11];
+    B_id [label=<<u>Id</u>>];
+    B_pickup [label="Pickup_Loc"];
+    B_dropoff [label="Dropoff_Loc"];
+    B_vtype [label="Vehicle_Type"];
+    B_ptime [label="Pickup_Time"];
+    B_atime [label="Accepted_Time"];
+    B_status [label="Status"];
+    B_dist [label="Distance"];
+    B_fare [label="Fare"];
+    B_pmethod [label="Payment_Method"];
+    B_pstatus [label="Payment_Status"];
+    B_notes [label="Notes"];
+
+    Booking -> B_id;
+    Booking -> B_pickup;
+    Booking -> B_dropoff;
+    Booking -> B_vtype;
+    Booking -> B_ptime;
+    Booking -> B_atime;
+    Booking -> B_status;
+    Booking -> B_dist;
+    Booking -> B_fare;
+    Booking -> B_pmethod;
+    Booking -> B_pstatus;
+    Booking -> B_notes;
+
+    // ================= RATING ATTRIBUTES =================
+    node [shape=ellipse, style=solid, penwidth=1.0, fontsize=11];
+    R_id [label=<<u>Id</u>>];
+    R_score [label="Rating_Score"];
+    R_text [label="Review_Text"];
+    R_created [label="Created_At"];
+
+    Rating -> R_id;
+    Rating -> R_score;
+    Rating -> R_text;
+    Rating -> R_created;
+
+    // ================= TRANSACTION ATTRIBUTES =================
+    node [shape=ellipse, style=solid, penwidth=1.0, fontsize=11];
+    T_id [label=<<u>Id</u>>];
+    T_tid [label=<<u>Transaction_ID</u>>]; 
+    T_amount [label="Amount"];
+    T_method [label="Payment_Method"];
+    T_status [label="Status"];
+    T_time [label="Timestamp"];
+
+    Transaction -> T_id;
+    Transaction -> T_tid;
+    Transaction -> T_amount;
+    Transaction -> T_method;
+    Transaction -> T_status;
+    Transaction -> T_time;
+
+    // ================= CONNECTIONS =================
+    
+    // User - Vehicle
+    User -> Drives;
+    Drives -> Vehicle;
+
+    // User - Booking
+    User -> Book;
+    Book -> Booking;
+
+    User -> Assigned;
+    Assigned -> Booking;
+
+    // User - Rating
+    User -> Given;
+    Given -> Rating;
+
+    User -> Received;
+    Received -> Rating;
+
+    // Booking - Rating
+    Booking -> HasRating;
+    HasRating -> Rating;
+
+    // Booking - Transaction
+    Booking -> HasTransaction;
+    HasTransaction -> Transaction;
+
+}
+        `;
+        
+        var viz = new Viz();
+        // neato generates a spring-embedded layout which is typical for Chen's ER Diagrams
+        viz.renderSVGElement(dot, { engine: 'neato' })
+        .then(function(element) {
+            var diagramDiv = document.getElementById('diagram');
+            diagramDiv.innerHTML = ''; 
+            element.style.width = '100%';
+            element.style.height = '100%';
+            diagramDiv.appendChild(element);
+        })
+        .catch(error => {
+            console.error(error);
+            document.getElementById('diagram').innerHTML = '<p style="color:red">Error generating diagram.</p>';
+        });
+    </script>
+</body>
+</html>
